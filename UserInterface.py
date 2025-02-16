@@ -15,34 +15,50 @@ dfClean = df.dropna(subset=['price','long','lat', 'neighbourhood', 'neighbourhoo
 dfClean['price'] = dfClean['price'].replace({'\\$': '', ',': ''}, regex=True)
 dfClean['price'] = pd.to_numeric(dfClean['price'], errors='coerce')
 
-print(dfClean['price'].max())
+dfClean = dfClean[dfClean['availability 365'] < 365].copy()
 
 
+priceLower = dfClean['price'].min()
+priceHigher = dfClean['price'].max()
 
 # Sidebar Filters
+
 st.sidebar.header("Filters")
-selected_neighborhoods = st.sidebar.multiselect("Select Neighborhood(s)", df['neighbourhood group'].unique())
+room_type = st.sidebar.multiselect("Select Room Type", df['room type'].unique())
+selected_neighbourhood = st.sidebar.multiselect("Select Neighbourhood(s)", df['neighbourhood group'].unique())
+policy = st.sidebar.multiselect("Cancellation Policy", df['cancellation_policy'].unique())
+booking = st.sidebar.checkbox("Instant Booking", df['instant_bookable'].unique)
 
-priceLower = st.number_input("Price Lower Limit:",value=250)
-priceHigher = st.number_input("Price Upper Limit:",value=500)
+PriceScale = st.slider("Price Range:",min_value=priceLower, max_value=priceHigher, value=(priceLower, priceHigher))
+rating = st.sidebar.slider("Rating:",min_value=1, max_value=5, value=1)
+pMin, pMax = PriceScale
 
-dfClean = dfClean[dfClean['price'] >= priceLower]
-dfClean = dfClean[dfClean['price'] <= priceHigher]
+dfClean = dfClean[dfClean['review rate number'] >= rating]
+
+dfClean = dfClean[dfClean['price'] >= pMin]
+dfClean = dfClean[dfClean['price'] <= pMax]
+
+if room_type:
+    dfClean = dfClean[dfClean['room type'].isin(room_type)]
+if selected_neighbourhood:
+    dfClean = dfClean[dfClean['neighbourhood group'].isin(selected_neighbourhood)]
+if policy:
+    dfClean = dfClean[dfClean['cancellation_policy'].isin(policy)]
+
+dfClean = dfClean[dfClean['instant_bookable']]
 
 
-for hoods in selected_neighborhoods:
-    if selected_neighborhoods:
-        dfClean = dfClean[dfClean['neighbourhood group'] == hoods]
 
-st.map(dfClean, latitude="lat", longitude="long")
+st.map(dfClean, latitude="lat", longitude="long", size=5)
 
 
-
+st.write("Showing " + str(len(dfClean)) + " listings :)")
 # Show raw data
 st.subheader("Raw Data")
 st.write(dfClean)
 
 # Select columns to display
+
 
 
 

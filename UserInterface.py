@@ -13,6 +13,11 @@ dfClean = df.dropna(subset=['price','long','lat', 'neighbourhood', 'neighbourhoo
 dfClean['price'] = dfClean['price'].replace({'\\$': '', ',': ''}, regex=True)
 dfClean['price'] = pd.to_numeric(dfClean['price'], errors='coerce')
 
+st.title("Welcome to The New Yourk Airbnb Listings Website")
+st.subheader("Configure the filters based on your preferences and find the listing that's right for you!")
+
+st.audio("Welcome To New York.mp3", format="audio/mp3", autoplay=True)
+st.write("Welcome To New York · Taylor Swift")
 dfClean = dfClean[dfClean['availability 365'] < 365].copy()
 
 priceLower = dfClean['price'].min()
@@ -53,7 +58,7 @@ if policy:
 
 
 st.map(dfClean, latitude="lat", longitude="long", size=5)
-st.write("Showing " + str(len(dfClean)) + " listings :)")
+st.subheader("Showing " + str(len(dfClean)) + " listings")
 
 col1, col2 = st.columns(2)
 
@@ -62,39 +67,38 @@ col1, col2 = st.columns(2)
 with col1:
     avg_price_neighborhood = dfClean.groupby('neighbourhood')['price'].mean().sort_values(ascending=False).round(2)
 
-    st.write("Average Price per Neighborhood:")
-    st.write(avg_price_neighborhood)
+    st.subheader("Average Price per Neighborhood:")
+    st.dataframe(avg_price_neighborhood, height=300, width=600)
 
 # 2. Number of reviews per room type
 with col2:
     reviews_per_room_type = dfClean.groupby('room type')['number of reviews'].sum().sort_values(ascending=False).round(1)
-    st.write("\nNumber of Reviews per Room Type:")
-    st.write(reviews_per_room_type)
+    st.subheader("\nNumber of Reviews per Room Type:")
+    st.dataframe(reviews_per_room_type,width=600)
 
-    col3, col4 = st.columns(2)
+col3, col4 = st.columns(2)
 
 # 3. Availability trends across boroughs
 with col3:
     availability_by_borough = dfClean.groupby('neighbourhood group')['availability 365'].mean().round(0)
-    st.write("\nAvailability Trends Across Boroughs:")
-    st.write(availability_by_borough)
+    st.subheader("\nAvailability Trends Across Boroughs:")
+    st.dataframe(availability_by_borough, width=600)
 
 # 4. Host listing distribution (small vs. large-scale hosts)
 with col4:
     dfClean['host_category'] = dfClean['calculated host listings count'].apply(lambda x: 'Small' if x <= 5 else 'Large')
     host_distribution = dfClean.groupby('host_category')['host_identity_verified'].count()
-    st.write("\nHost Listing Distribution (Small vs. Large-Scale Hosts):")
-    st.write(host_distribution)
+    st.subheader("\nHost Listing Distribution (Small vs. Large-Scale Hosts):")
+    st.dataframe(host_distribution,width=600)
 
-
-st.write("Showing " + str(len(dfClean)) + " listings :)")
-# Show raw data
 
 newDf = dfClean.drop(columns=['id','host id', 'lat','long','country','country code','license'])
 st.subheader("Available Housing Listings:")
 st.write(newDf)
 
-# Select columns to display
+st.write("Its been waiting for you...")
+
+
 
 
 

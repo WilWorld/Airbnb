@@ -12,6 +12,9 @@ dfClean = df.dropna(subset=['price', 'neighbourhood', 'neighbourhood group', 'ro
 dfClean['price'] = dfClean['price'].replace({'\\$': '', ',': ''}, regex=True)
 dfClean['price'] = pd.to_numeric(dfClean['price'], errors='coerce')
 
+# Remove rows where availability is 365 days
+dfClean = dfClean[dfClean['availability 365'] < 365].copy()
+
 # 1. Average price per neighborhood
 avg_price_neighborhood = dfClean.groupby('neighbourhood')['price'].mean().sort_values(ascending=False).round(2)
 print("Average Price per Neighborhood:")

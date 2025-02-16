@@ -5,10 +5,8 @@ import numpy as np
 
 df = pd.read_csv("Airbnb_Open_Data.csv", low_memory=False)
 
-
-
 dfClean = df.dropna(subset=['price','long','lat', 'neighbourhood', 'neighbourhood group', 'room type',
-                            'number of reviews', 'availability 365', 'calculated host listings count',
+                            'number of reviews', 'availability 365','cancellation_policy', 'calculated host listings count',
                             'house_rules', 'instant_bookable', 'NAME', 'host_identity_verified']).copy()  # Create a copy
 
 # Clean the price column: remove '$' and ',' then convert to numeric
@@ -17,7 +15,6 @@ dfClean['price'] = pd.to_numeric(dfClean['price'], errors='coerce')
 
 dfClean = dfClean[dfClean['availability 365'] < 365].copy()
 
-
 priceLower = dfClean['price'].min()
 priceHigher = dfClean['price'].max()
 
@@ -25,15 +22,23 @@ priceHigher = dfClean['price'].max()
 
 st.sidebar.header("Filters")
 PriceScale = st.sidebar.slider("Price Range:",min_value=priceLower, max_value=priceHigher, value=(priceLower, priceHigher))
+
 room_type = st.sidebar.multiselect("Select Room Type", df['room type'].unique())
+
 selected_neighbourhood = st.sidebar.multiselect("Select Neighbourhood(s)", df['neighbourhood group'].unique())
+
 policy = st.sidebar.multiselect("Cancellation Policy", df['cancellation_policy'].unique())
+
 booking = st.sidebar.checkbox("Instant Booking", df['instant_bookable'].unique)
+
 rating = st.sidebar.slider("Rating: (showing that rating and above)",min_value=1, max_value=5, value=3)
-ratingValue = rating
+
 pMin, pMax = PriceScale
 
 dfClean = dfClean[dfClean['review rate number'] >= rating]
+
+dfClean = dfClean[dfClean['instant_bookable'] == booking]
+
 
 dfClean = dfClean[dfClean['price'] >= pMin]
 dfClean = dfClean[dfClean['price'] <= pMax]
@@ -46,7 +51,6 @@ if selected_neighbourhood:
 if policy:
     dfClean = dfClean[dfClean['cancellation_policy'].isin(policy)]
 
-dfClean = dfClean[dfClean['instant_bookable']]
 
 st.map(dfClean, latitude="lat", longitude="long", size=5)
 st.write("Showing " + str(len(dfClean)) + " listings :)")
@@ -86,12 +90,11 @@ with col4:
 st.write("Showing " + str(len(dfClean)) + " listings :)")
 # Show raw data
 
-newDf = dfClean.drop(columns=['id','host id', 'lat','long'])
-st.subheader("Filtered Data")
+newDf = dfClean.drop(columns=['id','host id', 'lat','long','country','country code','license'])
+st.subheader("Available Housing Listings:")
 st.write(newDf)
 
 # Select columns to display
-
 
 
 

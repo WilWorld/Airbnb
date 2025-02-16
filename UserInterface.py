@@ -19,13 +19,20 @@ print(dfClean['price'].max())
 
 
 
-
+# Sidebar Filters
+st.sidebar.header("Filters")
+selected_neighborhoods = st.sidebar.multiselect("Select Neighborhood(s)", df['neighbourhood group'].unique())
 
 priceLower = st.number_input("Price Lower Limit:",value=250)
 priceHigher = st.number_input("Price Upper Limit:",value=500)
 
 dfClean = dfClean[dfClean['price'] >= priceLower]
 dfClean = dfClean[dfClean['price'] <= priceHigher]
+
+
+for hoods in selected_neighborhoods:
+    if selected_neighborhoods:
+        dfClean = dfClean[dfClean['neighbourhood group'] == hoods]
 
 st.map(dfClean, latitude="lat", longitude="long")
 
@@ -36,7 +43,6 @@ st.subheader("Raw Data")
 st.write(dfClean)
 
 # Select columns to display
-
 
 
 
